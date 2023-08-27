@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wellDressedMan.weather2clothes.repository.MemberMapper">
+    <insert id="createMember" keyProperty="mbr_idx">
+        insert into member (mbr_idx, mbr_id, mbr_password)
+                values (#{mbrIdx}, #{mbrId}, #{mbrPassword})
+    </insert>
+
+    <select id="findByMbrId" resultType="Member">
+        select mbr_idx, mbr_id, mbr_password
+        from member
+        where mbr_id = #{mbrId}
+    </select>
+
+</mapper>
