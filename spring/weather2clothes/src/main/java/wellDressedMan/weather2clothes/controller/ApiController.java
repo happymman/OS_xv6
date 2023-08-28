@@ -44,7 +44,7 @@ public class ApiController {
                 System.out.println(line);
                 String[] splits = line.split(",");
                 em.persist(new Region(Long.parseLong(splits[0]), splits[1], splits[2],
-                        Integer.parseInt(splits[3]), Integer.parseInt(splits[4]), Integer.parseInt(splits[5]), Integer.parseInt(splits[6])));
+                        Integer.parseInt(splits[3]), Integer.parseInt(splits[4]), splits[5], splits[6]));
             }
         } catch (IOException e) {
             e.printStackTrace();

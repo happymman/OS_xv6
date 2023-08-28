@@ -40,9 +40,10 @@ public class Weather {
     public static class Mid { //중기육상조회, 중기기온조회 정보 담는 객체
         short fcstDate; //예보날짜
 
-        short tempLowest; //최저기온
-        short tempHighest; //최고기온
         short rainAM; //오전강수확률
         short rainPM; //오후강수확률
+        short tempLowest; //최저기온
+        short tempHighest; //최고기온
+
     }
 }
