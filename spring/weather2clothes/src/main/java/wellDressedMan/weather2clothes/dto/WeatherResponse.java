@@ -1,10 +1,7 @@
 package wellDressedMan.weather2clothes.dto;
 
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import wellDressedMan.weather2clothes.domain.Weather;
 
 import java.util.List;
@@ -12,10 +9,11 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 @Embeddable //대응하는 DB테이블이 만들어지지 않도록
 public class WeatherResponse {
 
-    private List<Weather.Short> weatherUltraShort;
+    private List<Weather.UltraShort> weatherUltraShort;
     private List<Weather.Short> weatherShort;
     private List<Weather.Mid> weatherMid;
 

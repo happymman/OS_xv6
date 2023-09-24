@@ -88,7 +88,6 @@ public class WeatherServiceUtility {
         6,18시 발표자료를
         6:00, 18:00 부터 제공(확인 필요)(API명세에는 따로 언급X)
          */
-
         if((now.getHour()+6)%12!=0){
             now = now.minusHours((now.getHour()+6)%12); //기준시각을 6:00, 18:00으로 조정
         }

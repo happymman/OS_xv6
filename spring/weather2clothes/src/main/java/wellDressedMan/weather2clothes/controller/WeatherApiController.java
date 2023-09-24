@@ -4,11 +4,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,21 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import wellDressedMan.weather2clothes.domain.Region;
 import wellDressedMan.weather2clothes.domain.Weather;
+import wellDressedMan.weather2clothes.dto.ResponseDTO;
 import wellDressedMan.weather2clothes.dto.WeatherResponse;
-import wellDressedMan.weather2clothes.dto.WeatherResponseDTO;
 import wellDressedMan.weather2clothes.service.WeatherService;
 //import wellDressedMan.weather2clothes.service.WeatherService;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -48,12 +39,31 @@ public class WeatherApiController {
 
     @GetMapping
     @Transactional
-    public ResponseEntity<WeatherResponseDTO> getTotalInfo(@RequestParam Long regionId) throws UnsupportedEncodingException, IOException {
+    public ResponseEntity<ResponseDTO> getTotalInfo(@RequestParam Long regionId) throws UnsupportedEncodingException, IOException {
 
         // 1. 날씨 정보를 요청한 지역 조회
         Region region = em.find(Region.class, regionId);
 
         Map<String, Object> result =  weatherService.getRegionWeather(region);
+        List<Weather.UltraShort> WUS = (List<Weather.UltraShort>) result.get("weatherUltraShort");
+        List<Weather.Short> WS = (List<Weather.Short>) result.get("weatherShort");
+        List<Weather.Mid> WM = (List<Weather.Mid>) result.get("weatherMid");
+
+        WeatherResponse response = WeatherResponse.builder()
+                .weatherUltraShort(WUS)
+                .weatherShort(WS)
+                .weatherMid(WM).build();
+
+        ResponseDTO responseDTO = ResponseDTO.builder()
+                .weatherResponse(response)
+                .message("날씨 정보 요청 성공")
+                .build();
+
+        System.out.println();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(responseDTO);
+
 //        weatherService.getFashion();
 
         //List<Weather.Short> weatherUltraShort 세팅
@@ -68,7 +78,7 @@ public class WeatherApiController {
 //                    .weatherResponse(response)
 //                    .message("날씨 정보를 불러오는 중 오류가 발생했습니다").build();
 //        return ResponseEntity.ok(dto);
-        return null;
+//        return null;
 
         /*
         2-1.초단기실황 조회

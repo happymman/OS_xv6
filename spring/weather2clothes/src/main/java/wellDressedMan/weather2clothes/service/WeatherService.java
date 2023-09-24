@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import wellDressedMan.weather2clothes.domain.Region;
 import wellDressedMan.weather2clothes.domain.Weather;
+import wellDressedMan.weather2clothes.service.WeatherParser.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -11,27 +12,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static wellDressedMan.weather2clothes.service.WeatherParser.*;
 import static wellDressedMan.weather2clothes.service.WeatherRequest.requestWeather;
 import static wellDressedMan.weather2clothes.service.WeatherRequest.setURL;
-import static wellDressedMan.weather2clothes.service.WeatherResponseSet.createWeatherShortResponseForRegion;
-import static wellDressedMan.weather2clothes.service.WeatherResponseSet.createWeatherUltraShortResponseForRegion;
+import static wellDressedMan.weather2clothes.service.WeatherResponseSet.*;
 import static wellDressedMan.weather2clothes.service.WeatherServiceUtility.*;
 
 @Service
 public class WeatherService {
-    static Map<short[], short[][]> weatherUltraShort = new HashMap<>(); // key : 지역고유번호, 발표날짜, 발표시각
+    public static Map<short[], short[][]> weatherUltraShort = new HashMap<>(); // key : 지역고유번호, 발표날짜, 발표시각
                                                                                 // value : 예보날짜, 예보시간, 기온, 강수량, 풍속, 습도, 강수형태+하늘, 강수확률
-    static Map<short[], short[][]> weatherShort = new HashMap<>(); // key : 지역고유번호, 발표날짜, 발표시각
+    public static Map<short[], short[][]> weatherShort = new HashMap<>(); // key : 지역고유번호, 발표날짜, 발표시각
                                                                            // value : 예보날짜, 예보시간, 기온, 강수량, 풍속, 습도, 강수형태+하늘, 강수확률
-    static Map<short[], short[][]> weatherMidLand = new HashMap<>(); //	key : 지역고유번호, 발표날짜, 발표시각
+    public static Map<short[], short[][]> weatherMidLand = new HashMap<>(); //	key : 지역고유번호, 발표날짜, 발표시각
                                                                              // value : 예보날짜,      오전강수확률+오후강수확률
-    static Map<short[], short[][]> weatherMidTemp = new HashMap<>(); // key : 지역고유번호, 발표날짜, 발표시각
-                                                                            // value : 예보날짜,      최저기온, 최고온도
+    public static Map<short[], short[][]> weatherMidTemp = new HashMap<>(); // key : 지역고유번호, 발표날짜, 발표시각
+                                                                            // value : 예보날짜,      최저기온, 최고온
     @Value("${weatherApi.serviceKey}")
     private String serviceKey;
-
-    //public ResponseEntity<WeatherResponseDTO> getRegionWeather(Region region) throws IOException{ 테스트용
     public Map<String, Object> getRegionWeather(Region region) throws IOException{
         getUSN(region, serviceKey);
         getUSF(region, serviceKey);
@@ -39,17 +36,15 @@ public class WeatherService {
         getMFLand(region, serviceKey);
         getMFTemp(region, serviceKey);
 
-        List<Weather.UltraShort> WUS = createWeatherUltraShortResponseForRegion((short)(region.getId().intValue())); //List<Weather.Short> weatherUltraShort 세팅
-        List<Weather.Short> WS = createWeatherShortResponseForRegion((short)(region.getId().intValue())); //List<Weather.Short> weatherShort 세팅
-//        List<Weather.Mid> WM = setWeatherMid((short)(region.getId().intValue())); //List<Weather.Mid> weatherMid 세팅
+        List<Weather.UltraShort> WUS = createUltraShortWeatherList((short)(region.getId().intValue())); //List<Weather.Short> weatherUltraShort 세팅
+        List<Weather.Short> WS = createShortWeatherList((short)(region.getId().intValue())); //List<Weather.Short> weatherShort 세팅
+        List<Weather.Mid> WM = createMidWeatherList((short)(region.getId().intValue())); //List<Weather.Mid> weatherMid 세팅
 
-        //map.put
         Map<String, Object> result = new HashMap<>();
         result.put("weatherUltraShort", WUS);
         result.put("weatherShort", WS);
-//        result.put("weatherMid", WM);
+        result.put("weatherMid", WM);
 
-        System.out.println();
         return result;
     }
 
@@ -66,7 +61,7 @@ public class WeatherService {
         //3.요청
         String resData = requestWeather(url);
         //4.날씨저장
-        parseWeatherDataForUSN(resData, (short)region.getId().intValue());
+        WeatherParserForUSN.parseWeatherDataForUSN(resData, (short)region.getId().intValue());
     };
 
     static void getUSF(Region region, String serviceKey) throws IOException{
@@ -77,7 +72,7 @@ public class WeatherService {
         //3.요청
         String resData = requestWeather(url);
         //4.날씨저장
-        parseWeatherDataForUSF(resData, (short)region.getId().intValue());
+        WeatherParserForUSF.parseWeatherDataForUSF(resData, (short)region.getId().intValue());
     };
 
 
@@ -89,7 +84,7 @@ public class WeatherService {
         //3.요청
         String resData = requestWeather(url);
         //4.날씨저장
-        parseWeatherDataForVF(resData, (short)region.getId().intValue());
+        WeatherParserForVF.parseWeatherDataForVF(resData, (short)region.getId().intValue());
     };
 
     static void getMFLand(Region region, String serviceKey) throws IOException{
@@ -100,7 +95,7 @@ public class WeatherService {
         //3.요청
         String resData = requestWeather(url);
         //4.날씨저장
-        parseWeatherDataForMFL(resData, (short)region.getId().intValue());
+        WeatherParserForMFL.parseWeatherDataForMFL(resData, (short)region.getId().intValue());
     };
 
     static void getMFTemp(Region region, String serviceKey) throws IOException{
@@ -111,7 +106,7 @@ public class WeatherService {
         //3.요청
         String resData = requestWeather(url);
         //4.날씨저장
-        parseWeatherDataForMFT(resData, (short)region.getId().intValue());
+        WeatherParserForMFT.parseWeatherDataForMFT(resData, (short)region.getId().intValue());
     };
     static boolean haveAlready(short regionId, String type){
         //기준시각 설정

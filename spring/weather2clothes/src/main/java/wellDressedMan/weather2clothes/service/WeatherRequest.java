@@ -29,23 +29,23 @@ public class WeatherRequest {
         switch(type){
             case "USN" :
                 urlBuilder.append("VilageFcstInfoService_2.0/getUltraSrtNcst");
-                stdTimeStrs=setStdTimeStringForUSN(); //ex : 816 1600
+                stdTimeStrs= getStdTimeStringForUSN(); //ex : 816 1600
                 break;
             case "USF" :
                 urlBuilder.append("VilageFcstInfoService_2.0/getUltraSrtFcst");
-                stdTimeStrs=setStdTimeStringForUSF(); //ex : 816 1630
+                stdTimeStrs= getStdTimeStringForUSF(); //ex : 816 1630
                 break;
             case "VF" :
                 urlBuilder.append("VilageFcstInfoService_2.0/getVilageFcst");
-                stdTimeStrs=setStdTimeStringForVF();
+                stdTimeStrs= getStdTimeStringForVF();
                 break;
             case "MFL" :
                 urlBuilder.append("MidFcstInfoService/getMidLandFcst");
-                stdTimeStr=setStdTimeStringForMF();
+                stdTimeStr= getStdTimeStringForMF();
                 break;
             case "MFT" :
                 urlBuilder.append("MidFcstInfoService/getMidTa");
-                stdTimeStr=setStdTimeStringForMF();
+                stdTimeStr= getStdTimeStringForMF();
                 break;
         }
 
@@ -91,7 +91,7 @@ public class WeatherRequest {
     };
 
     //USN기준 기준시각 문자열배열 return
-    static String[] setStdTimeStringForUSN(){
+    static String[] getStdTimeStringForUSN(){
         LocalDateTime now = LocalDateTime.now();
         System.out.println(now.format(DateTimeFormatter.ofPattern("yyyy.MM.dd:HH:mm")));
 
@@ -111,7 +111,7 @@ public class WeatherRequest {
     };
 
     //USF기준 기준시각 문자열배열 return
-    static String[] setStdTimeStringForUSF(){
+    static String[] getStdTimeStringForUSF(){
         LocalDateTime now = LocalDateTime.now();
         System.out.println(now.format(DateTimeFormatter.ofPattern("yyyy.MM.dd:HH:mm")));
 
@@ -131,19 +131,22 @@ public class WeatherRequest {
     };
 
     //VF기준 기준시각 문자열배열 return
-    static String[] setStdTimeStringForVF(){
-        LocalDateTime now = LocalDateTime.now();
-
-        now = now.minusMinutes(10);
-        if((now.getHour()+1)%3!=0){
-            now = now.minusHours((now.minusMinutes(10).getHour()+1)%3); //130 ->030
+    static String[] getStdTimeStringForVF(){
+        LocalDateTime stdTime = LocalDateTime.now();
+        /*
+            2,5,8,11,14,17,20,23시 발표자료를
+            2:10,5:10,8:10,11:10,14:10,17:10,20:10,23:10 부터 제공
+        */
+        stdTime = stdTime.minusMinutes(10);
+        if((stdTime.getHour()+1)%3!=0){
+            stdTime = stdTime.minusHours((stdTime.minusMinutes(10).getHour()+1)%3); //130 ->030
         }
 
-        String hour = String.valueOf(now.getHour());
+        String hour = String.valueOf(stdTime.getHour());
         hour = hour.length()<2 ? "0"+hour : hour;
         String min = "00";
 
-        String baseDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String baseDate = stdTime.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String baseTime = hour+min;
 
         String[] stdTimeString = new String[]{baseDate, baseTime};
@@ -151,7 +154,7 @@ public class WeatherRequest {
     };
 
     //MF기준 기준시각 문자열 return ex : 202308270600
-    static String setStdTimeStringForMF(){
+    static String getStdTimeStringForMF(){
         LocalDateTime now = LocalDateTime.now();
         /*
         6,18시 발표자료를
